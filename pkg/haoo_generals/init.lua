@@ -61,6 +61,13 @@ Fk:loadTranslationTable {
   ["illustrator:bo__wushilin"] = "暂无",
   ["~bo__wushilin"] = "",
 
+  ["fb__fuban"] = "副班",
+  ["#fb__fuban"] = "里织帛柟",
+  ["designer:fb__fuban"] = "用户自制",
+  ["cv:fb__fuban"] = "暂无",
+  ["illustrator:fb__fuban"] = "ShapBy三眼皮猴的万宝路&AI",
+  ["~fb__fuban"] = "",
+
   ["azk__aizhake"] = "艾扎客",
   ["#azk__aizhake"] = "执杖曾翻嵘",
   ["designer:azk__aizhake"] = "用户自制",
@@ -165,5 +172,11 @@ General:new(extension, "ts__lin", "haoo", 3):addSkills { "ts__jiba", "ts__pojie"
 General:new(extension, "ts__yuji", "qun", 3):addSkills { "ts__nanbian", "ts__shifei", "ts__mengyan" }
 General:new(extension, "ts__jiekang", "wei", 3):addSkills { "ts__zuilin", "ts__feihua", "ts__shiwai" }
 General:new(extension, "ts__lin_sp", "haoo", 3):addSkills { "ts__duidu", "ts__tianming", "ts__sheyi" }
+
+local fuban = General:new(extension, "fb__fuban", "god", 3, 3, General.Male)
+fuban.subkingdom = "hg_tie"
+fuban.prefix = nil
+fuban:addSkills { "fb__hufu", "fb__bangban" }
+fuban:addRelatedSkills { "fb__yingzi" }
 
 return extension

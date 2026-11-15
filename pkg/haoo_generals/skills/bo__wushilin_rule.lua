@@ -88,7 +88,10 @@ skill:addEffect("invalidity", {
     local skel = target_skill:getSkeleton()
     if skel and skel.name ~= skill.name and player:getMark(W.silenced) > 0 and
       target_skill:isPlayerSkill(player) then return true end
-    if skel and table.contains(player:getTableMark(W.granted), skel.name) and not player:hasSkill("bo__jige") then return true end
+    if skel and table.contains(player:getTableMark(W.granted), skel.name) then
+      if skel.name == "quanji" and player:getMark(W.quanji_active) == 0 then return true end
+      if not player:hasSkill("bo__jige") then return true end
+    end
   end,
 })
 
