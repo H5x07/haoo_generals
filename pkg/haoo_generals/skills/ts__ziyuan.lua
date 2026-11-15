@@ -11,12 +11,19 @@ Fk:loadTranslationTable {
   ["#ts__ziyuan-target"] = "资源：选择获得这些牌的角色",
 }
 
--- 只统计“因技能获得”的牌：排除摸牌、也排除本技能自己制造的移动
+local function is_player_skill_gain(name)
+  local sk = Fk.skills[name]
+  if not sk or sk:isInstanceOf(CardSkill) then return false end
+  return type(sk:getSkeleton().attached_equip) ~= "string"
+end
+
+-- 只统计“因其他技能获得”的牌：排除卡牌效果、装备技能、摸牌及本技能的移动
 local function count_gain(data, player)
   local n = 0
   for _, move in ipairs(data) do
     if move.to == player and move.toArea == Card.PlayerHand and move.skillName and
-      move.skillName ~= ziyuan.name and move.moveReason ~= fk.ReasonDraw then
+      move.skillName ~= ziyuan.name and move.moveReason ~= fk.ReasonDraw and
+      is_player_skill_gain(move.skillName) then
       n = n + #move.moveInfo
     end
   end
