@@ -134,7 +134,8 @@ sheyi:addEffect(fk.EnterDying, {
   anim_type = "support",
   can_trigger = function(self, event, target, player, data)
     return player:hasSkill(sheyi.name) and target and target ~= player and
-      not target.dead and target.hp < 1 and player.hp > 0
+      not target.dead and target.hp < 1 and player.hp > 0 and
+      target:getMark("ts__sheyi_dying-turn") == 0
   end,
   on_cost = function(self, event, target, player, data)
     return player.room:askToSkillInvoke(target, {
@@ -145,6 +146,7 @@ sheyi:addEffect(fk.EnterDying, {
     local room = player.room
     protect(room, target, player)
     add_debt(room, target, player, "ts__sheyi_hp_debts", 2)
+    room:addPlayerMark(target, "ts__sheyi_dying-turn", 1)
     room:recover { who = target, num = 1, recoverBy = player, skillName = sheyi.name }
     if not player.dead then room:loseHp(player, 1, sheyi.name) end
   end,
