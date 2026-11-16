@@ -13,8 +13,9 @@ Fk:loadTranslationTable {
 
 local function is_player_skill_gain(name)
   local sk = Fk.skills[name]
-  if not sk or sk:isInstanceOf(CardSkill) then return false end
-  return type(sk:getSkeleton().attached_equip) ~= "string"
+  if not sk or sk.cardSkill or sk:isInstanceOf(CardSkill) then return false end
+  local skel = sk:getSkeleton()
+  return not (skel and type(skel.attached_equip) == "string")
 end
 
 -- 只统计“因其他技能获得”的牌：排除卡牌效果、装备技能、摸牌及本技能的移动
