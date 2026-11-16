@@ -8,7 +8,12 @@ local function amount(player, kind)
   return math.max(0, player.maxHp - 1)
 end
 
-local function pay(room, player, kind, n)
+local function payable(player, kind)
+  if kind == "ts__bet_maxhp" then return math.max(0, player.maxHp - player.hp) end
+  return amount(player, kind)
+end
+
+local function pay(room, player, kind, n, is_other)
   if player.dead then return {} end
   if kind == "ts__bet_cards" then
     return room:askToDiscard(player, {
@@ -19,7 +24,7 @@ local function pay(room, player, kind, n)
   elseif kind == "ts__bet_hp" then
     room:loseHp(player, math.min(n, math.max(0, player.hp)), duidu.name)
   else
-    room:changeMaxHp(player, -math.min(n, math.max(0, player.maxHp - 1)))
+    room:changeMaxHp(player, is_other and -n or -math.min(n, math.max(0, player.maxHp - 1)))
   end
   return {}
 end
@@ -51,7 +56,7 @@ duidu:addEffect("active", {
     local candidates = {}
     for _, kind in ipairs({ "ts__bet_cards", "ts__bet_hp", "ts__bet_maxhp" }) do
       candidates[kind] = table.filter(room.alive_players, function(p)
-        return p ~= player and amount(p, kind) > 0
+        return p ~= player and payable(p, kind) > 0
       end)
       if amount(player, kind) > 0 and #candidates[kind] > 0 then
         table.insert(choices, kind)
@@ -67,7 +72,7 @@ duidu:addEffect("active", {
     })
     local other = tos[1]
     if not other or player.dead or other.dead then return end
-    local limit = math.min(amount(player, kind), amount(other, kind))
+    local limit = math.min(amount(player, kind), payable(other, kind))
     if limit < 1 then return end
     local n = room:askToNumber(player, {
       min = 1, max = limit, skill_name = duidu.name,
@@ -82,7 +87,7 @@ duidu:addEffect("active", {
     if not forced and not room:askToSkillInvoke(other, {
       skill_name = duidu.name, prompt = "#ts__duidu-accept:::" .. n,
     }) then return end
-    table.insertTable(cards, pay(room, other, kind, n))
+    table.insertTable(cards, pay(room, other, kind, n, true))
     if player.dead or other.dead then return end
     local winner
     repeat

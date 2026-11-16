@@ -8,11 +8,21 @@ local function protect(room, debtor, owner)
   room:setPlayerMark(debtor, "ts__sheyi_protected-turn", ids)
 end
 
+local function update_debt_mark(room, debtor, owner, mark)
+  local n = 0
+  for _, debt in ipairs(debtor:getTableMark(mark)) do
+    if debt.owner == owner.id then n = n + debt.n end
+  end
+  local visible = mark == "ts__sheyi_card_debts" and "@ts__sheyi_card_debt" or "@ts__sheyi_hp_debt"
+  room:setPlayerMark(debtor, visible, n)
+end
+
 local function add_debt(room, debtor, owner, mark, n)
   local debts = debtor:getTableMark(mark)
   local debt = table.find(debts, function(d) return d.owner == owner.id end)
   if debt then debt.n = debt.n + n else table.insert(debts, { owner = owner.id, n = n }) end
   room:setPlayerMark(debtor, mark, debts)
+  update_debt_mark(room, debtor, owner, mark)
 end
 
 sheyi:addEffect(fk.EventPhaseStart, {
@@ -104,6 +114,7 @@ sheyi:addEffect(fk.AfterCardsMove, {
         end
         -- Debit all borrowers before any transfer can trigger nested AfterCardsMove events.
         room:setPlayerMark(debtor, "ts__sheyi_card_debts", keep)
+        update_debt_mark(room, debtor, player, "ts__sheyi_card_debts")
       end
     end
     for _, transfer in ipairs(transfers) do
@@ -123,7 +134,8 @@ sheyi:addEffect(fk.EnterDying, {
   anim_type = "support",
   can_trigger = function(self, event, target, player, data)
     return player:hasSkill(sheyi.name) and target and target ~= player and
-      not target.dead and target.hp < 1 and player.hp > 0
+      not target.dead and target.hp < 1 and player.hp > 0 and
+      target:getMark("ts__sheyi_dying-turn") == 0
   end,
   on_cost = function(self, event, target, player, data)
     return player.room:askToSkillInvoke(target, {
@@ -134,37 +146,54 @@ sheyi:addEffect(fk.EnterDying, {
     local room = player.room
     protect(room, target, player)
     add_debt(room, target, player, "ts__sheyi_hp_debts", 2)
+    room:addPlayerMark(target, "ts__sheyi_dying-turn", 1)
     room:recover { who = target, num = 1, recoverBy = player, skillName = sheyi.name }
     if not player.dead then room:loseHp(player, 1, sheyi.name) end
   end,
 })
 
-sheyi:addEffect(fk.TurnStart, {
-  can_refresh = function(self, event, target, player, data)
-    if target ~= player or player.dead or not player:hasSkill(sheyi.name) then return false end
-    return table.find(player.room.players, function(debtor)
-      return not debtor.dead and table.find(debtor:getTableMark("ts__sheyi_hp_debts"),
-        function(debt) return debt.owner == player.id and debt.n > 0 end) ~= nil
-    end) ~= nil
-  end,
-  on_refresh = function(self, event, target, player, data)
-    local room = player.room
-    if target ~= player or player.dead then return end
-    for _, debtor in ipairs(room.players) do
-      if player.dead then return end
-      if not debtor.dead then
-        local keep, n = {}, 0
-        for _, debt in ipairs(debtor:getTableMark("ts__sheyi_hp_debts")) do
-          if debt.owner == player.id then n = n + debt.n else table.insert(keep, debt) end
-        end
-        if n > 0 then
-          room:setPlayerMark(debtor, "ts__sheyi_hp_debts", keep)
-          room:recover { who = player, num = n, recoverBy = debtor, skillName = sheyi.name }
-          if not debtor.dead then room:loseHp(debtor, n, sheyi.name) end
-        end
+local function can_collect_hp(self, event, target, player, data)
+  if target ~= player or player.dead or not player:hasSkill(sheyi.name) then return false end
+  return table.find(player.room.players, function(debtor)
+    return not debtor.dead and table.find(debtor:getTableMark("ts__sheyi_hp_debts"),
+      function(debt) return debt.owner == player.id and debt.n > 0 end) ~= nil
+  end) ~= nil
+end
+
+local function collect_hp(self, event, target, player, data)
+  local room = player.room
+  if target ~= player or player.dead then return end
+  local payments = {}
+  -- Clear every borrower's account before recovery or HP loss can cause nested dying events.
+  for _, debtor in ipairs(room.players) do
+    if not debtor.dead then
+      local keep, n = {}, 0
+      for _, debt in ipairs(debtor:getTableMark("ts__sheyi_hp_debts")) do
+        if debt.owner == player.id then n = n + debt.n else table.insert(keep, debt) end
       end
+      room:setPlayerMark(debtor, "ts__sheyi_hp_debts", keep)
+      update_debt_mark(room, debtor, player, "ts__sheyi_hp_debts")
+      if n > 0 then table.insert(payments, { debtor = debtor, n = n }) end
     end
-  end,
+  end
+  for _, payment in ipairs(payments) do
+    if player.dead then return end
+    local debtor, n = payment.debtor, payment.n
+    if not debtor.dead then
+      room:recover { who = player, num = n, recoverBy = debtor, skillName = sheyi.name }
+      if not debtor.dead then room:loseHp(debtor, n, sheyi.name) end
+    end
+  end
+end
+
+sheyi:addEffect(fk.TurnStart, {
+  can_refresh = can_collect_hp,
+  on_refresh = collect_hp,
+})
+
+sheyi:addEffect(fk.EnterDying, {
+  can_refresh = can_collect_hp,
+  on_refresh = collect_hp,
 })
 
 return sheyi
