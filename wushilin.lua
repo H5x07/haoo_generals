@@ -11,12 +11,23 @@ W.skip_draw = "@bo__dansi_skip"
 W.extra_draw = "@bo__dansi_draw"
 W.backwater = "@bo__dansi_duanchang"
 W.silenced = "bo__dansi_silenced"
+W.quanji_active = "bo__jige_quanji_active"
 
 function W.removeBorrowed(player)
   local names = player:getTableMark(W.granted)
-  player.room:setPlayerMark(player, W.granted, 0)
+  -- Keep Jige's native Quanji source while temporarily inactive: actually
+  -- losing Quanji invokes its derived-pile cleanup and discards every Quan.
+  local retained = {}
+  if table.contains(names, "quanji") and not player.dead and
+    player:hasSkill("bo__jige", true, true) and player:hasSkill("quanji", true, true) then
+    retained = { "quanji" }
+  end
+  player.room:setPlayerMark(player, W.quanji_active, 0)
+  player.room:setPlayerMark(player, W.granted, #retained > 0 and retained or 0)
   for _, name in ipairs(names) do
-    if player:hasSkill(name, true, true) then
+    if table.contains(retained, name) then
+      -- Its effects are disabled by the global invalidity rule instead.
+    elseif player:hasSkill(name, true, true) then
       player.room:handleAddLoseSkills(player, "-" .. name, "bo__jige", false)
     else
       -- Removing Jige itself already removes its derivative skills. The
@@ -29,6 +40,7 @@ end
 function W.syncSkills(player)
   local room = player.room
   if not player.dead and room:getTag(W.turn_tag) and player:hasSkill("bo__jige") and player:getMark(W.gained) == 0 then
+    room:setPlayerMark(player, W.quanji_active, 1)
     local added = player:getTableMark(W.granted)
     for _, name in ipairs(W.borrowed) do
       if not player:hasSkill(name, true, true) then
