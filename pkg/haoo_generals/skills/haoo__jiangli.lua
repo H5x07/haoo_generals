@@ -1,5 +1,6 @@
 local jiangli = fk.CreateSkill {
   name = "haoo__jiangli",
+  related_skills = { "haoo__shenxu" },
 }
 
 Fk:loadTranslationTable {
@@ -19,21 +20,26 @@ local function nullifyWholeCard(use)
   end
 end
 
-local function askCost(room, player)
-  if not room:askToSkillInvoke(player, {
-    skill_name = "haoo__jiangli",
+local function askInvoke(room, player, data)
+  data.use[HANDLED] = true
+  return room:askToSkillInvoke(player, {
+    skill_name = jiangli.name,
     prompt = "#haoo__jiangli-invoke",
-  }) then
-    return false
+  })
+end
+
+local function executeEffect(room, player, use)
+  room:loseHp(player, 1, jiangli.name)
+  local dyingEvents = room.logic:getEventsByRule(GameEvent.Dying, 1, function(e)
+    return e.data.who == player and e.data.hpLost and e.data.hpLost.skillName == jiangli.name
+  end)
+  if not player.dead then
+    player:drawCards(1, jiangli.name)
   end
-  local willDying = player.hp <= 1
-  room:loseHp(player, 1, "haoo__jiangli")
-  if player.dead then return false end
-  player:drawCards(1, "haoo__jiangli")
-  if willDying then
-    room:handleAddLoseSkills(player, "haoo__shenxu", "haoo__jiangli")
+  nullifyWholeCard(use)
+  if not player.dead and #dyingEvents > 0 and not player:hasSkill("haoo__shenxu", true) then
+    room:handleAddLoseSkills(player, "haoo__shenxu", jiangli.name)
   end
-  return true
 end
 
 jiangli:addEffect(fk.TargetSpecified, {
@@ -43,11 +49,10 @@ jiangli:addEffect(fk.TargetSpecified, {
       data.use and not data.use[HANDLED] and data.to and not data.to.dead
   end,
   on_cost = function(self, event, target, player, data)
-    data.use[HANDLED] = true
-    return askCost(player.room, player)
+    return askInvoke(player.room, player, data)
   end,
   on_use = function(self, event, target, player, data)
-    nullifyWholeCard(data.use)
+    executeEffect(player.room, player, data.use)
   end,
 })
 
@@ -58,11 +63,10 @@ jiangli:addEffect(fk.TargetConfirmed, {
       data.use and not data.use[HANDLED]
   end,
   on_cost = function(self, event, target, player, data)
-    data.use[HANDLED] = true
-    return askCost(player.room, player)
+    return askInvoke(player.room, player, data)
   end,
   on_use = function(self, event, target, player, data)
-    nullifyWholeCard(data.use)
+    executeEffect(player.room, player, data.use)
   end,
 })
 
