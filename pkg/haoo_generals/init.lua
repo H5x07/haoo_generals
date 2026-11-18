@@ -154,7 +154,10 @@ Fk:loadTranslationTable {
 }
 
 General:new(extension, "haoo__hongkainan", "zheng", 4):addSkills { "haoo__jiangli" }
-General:new(extension, "haoo__hongkainan2", "zheng", 4):addSkills { "haoo__tongnan" }
+local hongkainan2 = General:new(extension, "haoo__hongkainan2", "zheng", 4)
+-- 与洪凯南（haoo__hongkainan）、南明毕（lz__nanmingbi）互为同名武将
+hongkainan2.trueName = "hongkainan"
+hongkainan2:addSkills { "haoo__tongnan" }
 General:new(extension, "haoo__wanglei", "zheng", 3):addSkills { "haoo__xuanjian", "haoo__shijie" }
 General:new(extension, "haoo__chenjinkun", "zheng", 4):addSkills {
   "haoo__shenkun", "haoo__yangjing", "haoo__xianzhe", "haoo__wuyi",
@@ -162,7 +165,9 @@ General:new(extension, "haoo__chenjinkun", "zheng", 4):addSkills {
 General:new(extension, "hg__tao", "hg_tie", 4, 4):addSkills {
   "hg__yuanqi", "hg__dongshen", "hg__chaowei",
 }
-General:new(extension, "lz__nanmingbi", "hg_tie", 4, 4):addSkills {
+local nanmingbi = General:new(extension, "lz__nanmingbi", "hg_tie", 4, 4)
+nanmingbi.trueName = "hongkainan"
+nanmingbi:addSkills {
   "lz__jiangli", "lz__luguan",
 }
 local guozhou = General:new(extension, "sha__guozhou", "hg_tie", 4, 4, General.Male)
@@ -187,6 +192,8 @@ zengyixiong:addRelatedSkills { "paoxiao", "benxi", "zhuhai" }
 -- 角标（prefix）默认取 id 中 "__" 之前的部分（此处为 ts），自制的 ts 系武将改成称号
 local lin = General:new(extension, "ts__lin", "haoo", 3)
 lin.prefix = "周好"
+-- 与殺郭周（sha__guozhou）互为同名武将
+lin.trueName = "guozhou"
 lin:addSkills { "ts__jiba", "ts__pojie" }
 
 local yuji = General:new(extension, "ts__yuji", "qun", 3)
@@ -199,6 +206,8 @@ jiekang:addSkills { "ts__zuilin", "ts__feihua", "ts__shiwai" }
 
 local lin_sp = General:new(extension, "ts__lin_sp", "haoo", 3)
 lin_sp.prefix = "狂赌之渊"
+-- 与吾是琳（bo__wushilin）互为同名武将
+lin_sp.trueName = "wushilin"
 lin_sp:addSkills { "ts__duidu", "ts__tianming", "ts__sheyi" }
 
 local fuban = General:new(extension, "fb__fuban", "god", 3, 3, General.Male)

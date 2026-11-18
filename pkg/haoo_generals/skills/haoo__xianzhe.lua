@@ -24,20 +24,23 @@ xianzhe:addEffect(fk.EventPhaseStart, {
   end,
   on_use = function(self, event, target, player, data)
     player:turnOver()
-    player:drawCards(3, xianzhe.name)
-    U.skillCharged(player, 2)
+    if not player.dead then
+      player:drawCards(3, xianzhe.name)
+    end
+    if not player.dead then
+      U.skillCharged(player, 2)
+    end
   end,
 })
 
--- 记录本回合内是否翻面过
+-- 记录本回合内是否翻面过（使用全局 refresh，防止回合内曾失技或后获技时漏记，且不触发无意义发动事件）
 xianzhe:addEffect(fk.TurnedOver, {
-  mute = true,
-  can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(xianzhe.name) and
-      player.room:getCurrent() == player
+  global = true,
+  can_refresh = function(self, event, target, player, data)
+    return target == player and player.room:getCurrent() == player and
+      player:getMark("haoo__xz_turned-turn") == 0
   end,
-  on_cost = Util.TrueFunc,
-  on_use = function(self, event, target, player, data)
+  on_refresh = function(self, event, target, player, data)
     player.room:setPlayerMark(player, "haoo__xz_turned-turn", 1)
   end,
 })

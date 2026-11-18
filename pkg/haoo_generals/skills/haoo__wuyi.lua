@@ -28,27 +28,21 @@ wuyi:addEffect(fk.AfterCardsMove, {
       end
     end
     if n == 0 or not isFactorOrMultipleOf15(sum) then return false end
-    local slash = Fk:cloneCard("slash")
-    slash.skillName = wuyi.name
+    local card = Fk:cloneCard("slash")
+    card.skillName = wuyi.name
     -- 事件时机使用【杀】不处于出牌阶段空闲时间点，按规则不计入且不受出牌阶段【杀】次数限制
     return table.find(player.room.alive_players, function(p)
-      return player:canUseTo(slash, p, { bypass_distances = true, bypass_times = true })
+      return p ~= player and player:canUseTo(card, p, { bypass_distances = true, bypass_times = true })
     end) ~= nil
   end,
   on_cost = function(self, event, target, player, data)
-    return player.room:askToSkillInvoke(player, {
-      skill_name = wuyi.name,
-      prompt = "#haoo__wuyi-invoke",
-    })
-  end,
-  on_use = function(self, event, target, player, data)
     local room = player.room
-    local slash = Fk:cloneCard("slash")
-    slash.skillName = wuyi.name
+    local card = Fk:cloneCard("slash")
+    card.skillName = wuyi.name
     local targets = table.filter(room.alive_players, function(p)
-      return player:canUseTo(slash, p, { bypass_distances = true, bypass_times = true })
+      return p ~= player and player:canUseTo(card, p, { bypass_distances = true, bypass_times = true })
     end)
-    if #targets == 0 then return end
+    if #targets == 0 then return false end
     local tos = room:askToChoosePlayers(player, {
       targets = targets,
       min_num = 1,
@@ -57,8 +51,14 @@ wuyi:addEffect(fk.AfterCardsMove, {
       prompt = "#haoo__wuyi-choose",
       cancelable = true,
     })
-    if #tos == 0 then return end
-    room:useVirtualCard("slash", nil, player, tos[1], wuyi.name, true)
+    if #tos > 0 then
+      event:setCostData(self, { tos = tos })
+      return true
+    end
+  end,
+  on_use = function(self, event, target, player, data)
+    local tos = event:getCostData(self).tos
+    player.room:useVirtualCard("slash", nil, player, tos, wuyi.name, true)
   end,
 })
 
