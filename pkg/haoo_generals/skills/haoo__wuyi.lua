@@ -27,7 +27,13 @@ wuyi:addEffect(fk.AfterCardsMove, {
         end
       end
     end
-    return n > 0 and isFactorOrMultipleOf15(sum)
+    if n == 0 or not isFactorOrMultipleOf15(sum) then return false end
+    local slash = Fk:cloneCard("slash")
+    slash.skillName = wuyi.name
+    -- 事件时机使用【杀】不处于出牌阶段空闲时间点，按规则不计入且不受出牌阶段【杀】次数限制
+    return table.find(player.room.alive_players, function(p)
+      return player:canUseTo(slash, p, { bypass_distances = true, bypass_times = true })
+    end) ~= nil
   end,
   on_cost = function(self, event, target, player, data)
     return player.room:askToSkillInvoke(player, {
@@ -37,8 +43,10 @@ wuyi:addEffect(fk.AfterCardsMove, {
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room
+    local slash = Fk:cloneCard("slash")
+    slash.skillName = wuyi.name
     local targets = table.filter(room.alive_players, function(p)
-      return p ~= player
+      return player:canUseTo(slash, p, { bypass_distances = true, bypass_times = true })
     end)
     if #targets == 0 then return end
     local tos = room:askToChoosePlayers(player, {
