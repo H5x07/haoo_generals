@@ -30,6 +30,7 @@ wuyi:addEffect(fk.AfterCardsMove, {
     if n == 0 or not isFactorOrMultipleOf15(sum) then return false end
     local card = Fk:cloneCard("slash")
     card.skillName = wuyi.name
+    -- 事件时机使用【杀】不处于出牌阶段空闲时间点，按规则不计入且不受出牌阶段【杀】次数限制
     return table.find(player.room.alive_players, function(p)
       return p ~= player and player:canUseTo(card, p, { bypass_distances = true, bypass_times = true })
     end) ~= nil
