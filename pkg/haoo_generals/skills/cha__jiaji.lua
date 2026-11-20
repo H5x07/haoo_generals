@@ -2,7 +2,7 @@ local C = require "packages.haoo_generals.cha"
 local skill = fk.CreateSkill{name = "cha__jiaji"}
 Fk:loadTranslationTable{
   ["cha__jiaji"] = "假济",
-  [":cha__jiaji"] = "每回合限一次，你造成伤害后，可以发动一次“驱虎”（不受出牌阶段及次数限制）。",
+  [":cha__jiaji"] = "每回合限一次，当你造成伤害后，你可〖驱虎〗。",
   ["#cha__jiaji-choose"] = "假济：选择体力值大于你的一名角色，发动一次“驱虎”",
   ["#cha__jiaji-damage"] = "假济：选择其攻击范围内的一名角色，由其造成1点伤害",
 }

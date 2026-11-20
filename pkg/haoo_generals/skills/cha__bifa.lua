@@ -2,7 +2,7 @@ local C = require "packages.haoo_generals.cha"
 local skill = fk.CreateSkill{name = "cha__bifa"}
 Fk:loadTranslationTable{
   ["cha__bifa"] = "笔伐",
-  [":cha__bifa"] = "你的拼点牌为黑色且你没赢时，可以与对方重新拼点，以新结果替代此次拼点结果。",
+  [":cha__bifa"] = "当你使用黑色牌拼点失败时，你可再次发起拼点并以此为结果。",
   ["#cha__bifa-invoke"] = "笔伐：是否与 %dest 重新拼点，以新结果替代此次结果？",
 }
 skill:addEffect(fk.PindianResultConfirmed, {

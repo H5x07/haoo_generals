@@ -2,7 +2,7 @@ local C = require "packages.haoo_generals.cha"
 local skill = fk.CreateSkill{name = "cha__zhengdu", tags = {Skill.Compulsory}}
 Fk:loadTranslationTable{
   ["cha__zhengdu"] = "睁踱",
-  [":cha__zhengdu"] = "锁定技，一次拼点结束后，你对以红色牌拼点且没赢的角色各造成1点伤害。",
+  [":cha__zhengdu"] = "锁定技，有角色使用红色牌拼点失败时，你对其造成1点伤害。",
 }
 skill:addEffect(fk.PindianFinished, {
   global = true,

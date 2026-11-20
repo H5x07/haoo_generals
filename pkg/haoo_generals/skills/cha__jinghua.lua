@@ -2,7 +2,7 @@ local C = require "packages.haoo_generals.cha"
 local skill = fk.CreateSkill{name = "cha__jinghua", tags = {Skill.Compulsory}}
 Fk:loadTranslationTable{
   ["cha__jinghua"] = "竞哗",
-  [":cha__jinghua"] = "锁定技，当其他角色使用的牌指定你为目标后，若你能与其拼点，你与其拼点，然后此牌对你无效。",
+  [":cha__jinghua"] = "锁定技，当其他角色使用牌指定你为目标时，你与其拼点并令此牌对你无效。",
 }
 skill:addEffect(fk.TargetConfirmed, {
   anim_type = "defensive",

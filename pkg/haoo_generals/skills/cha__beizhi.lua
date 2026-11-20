@@ -2,7 +2,7 @@ local C = require "packages.haoo_generals.cha"
 local skill = fk.CreateSkill{name = "cha__beizhi"}
 Fk:loadTranslationTable{
   ["cha__beizhi"] = "北智",
-  [":cha__beizhi"] = "你受到伤害后，可以将所有手牌当一张普通锦囊牌使用（不受出牌阶段及“奇策”次数限制），然后获得“竞哗”直到本回合结束。",
+  [":cha__beizhi"] = "当你受到伤害后，你可〖奇策〗，并于本回合获得〖竞哗〗。",
 }
 skill:addEffect(fk.DamageFinished, {
   anim_type = "special",

@@ -231,10 +231,10 @@ end)
 
 local cha = General:new(extension, "cha__cha", "haoo", 3, 3)
 cha.prefix = "临颧"
-cha:addSkills { "cha__jiaji", "cha__beizhi", "cha__bifa", "cha__zhengdu" }
+cha:addSkills { "cha__beizhi", "cha__bifa", "cha__jiaji", "cha__zhengdu" }
 cha:addRelatedSkills { "cha__jinghua" }
 Fk:loadTranslationTable {
-  ["cha__cha"] = "猹",
+  ["cha__cha"] = "搽刹",
   ["#cha__cha"] = "临颧",
   ["临颧"] = "临颧",
 }
