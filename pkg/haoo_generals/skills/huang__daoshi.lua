@@ -4,7 +4,7 @@ local daoshi = fk.CreateSkill {
 
 Fk:loadTranslationTable {
   ["huang__daoshi"] = "祷师",
-  [":huang__daoshi"] = "出牌阶段限一次，你可以将任意张手牌依次置于牌堆顶，然后视为依次使用等量的【推心置腹】（每张须各自选择目标）。",
+  [":huang__daoshi"] = "出牌阶段限一次，你可依次将X张牌置于牌堆顶，视为使用X张【推心置腹】。",
 
   ["#huang__daoshi"] = "祷师：将任意张手牌依次置于牌堆顶，视为依次使用等量的【推心置腹】",
   ["#huang__daoshi-put"] = "祷师：选择第 %arg 张置于牌堆顶的手牌（点取消即结束）",
