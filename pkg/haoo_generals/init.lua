@@ -202,7 +202,7 @@ yuji:addSkills { "ts__nanbian", "ts__shifei", "ts__mengyan" }
 
 local jiekang = General:new(extension, "ts__jiekang", "wei", 3)
 jiekang.prefix = "竹林名士"
-jiekang:addSkills { "ts__zuilin", "ts__feihua", "ts__shiwai" }
+jiekang:addSkills { "ts__shiwai", "ts__feihua", "ts__zuilin" }
 
 local lin_sp = General:new(extension, "ts__lin_sp", "haoo", 3)
 lin_sp.prefix = "狂赌之渊"
@@ -217,17 +217,9 @@ fuban:addSkills { "fb__hufu", "fb__bangban" }
 fuban:addRelatedSkills { "fb__yingzi" }
 
 -- 皇（原测试集 huang_test 并入）；角标同样改成称号
-local huang = General:new(extension, "huang__huang", "hshen", 3, 3, General.Male)
+local huang = General:new(extension, "huang__huang", "haoo", 3, 3, General.Male)
 huang.prefix = "仙瑞"
 huang:addSkills { "huang__daoshi", "huang__luoze" }
-
--- 选将时让皇自选势力：神 或 魏/蜀/吴/群
--- 机制：Room:askToChooseKingdom 会把「该势力有映射」的武将拉去选势力，
--- 可选项就是 Fk:getKingdomMap(kingdom) 的结果，所以把 hshen 映射到五个势力。
--- 用 addPostLoadFunc 保证所有包（尤其 standard 的四国与神将）都已注册完毕。
-Fk:addPostLoadFunc(function()
-  Fk:appendKingdomMap("hshen", { "god", "wei", "shu", "wu", "qun" })
-end)
 
 local cha = General:new(extension, "cha__cha", "haoo", 3, 3)
 cha.prefix = "临颧"
